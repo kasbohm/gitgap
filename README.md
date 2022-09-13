@@ -1,18 +1,18 @@
 # gitgap
-Sync git repositories between local repo and repo behind an airgap using git bundle. Built to improve QOL on the TSD service on USIT/UiO, but may be adapted for other airgapped environments. 
+Sync git repositories between local repo and repo behind an airgapped server using git bundle. 
 ## Installation
 ### Pre-requisites
-You need a TSD import link set up with secret_challenge to use this. 
-https://selfservice.tsd.usit.no/project/import-links
-Can also be used on other airgapped servers, just replace tsd_adapter.sh with something else. 
+For use with TSD, you need a TSD import link set up with secret_challenge https://selfservice.tsd.usit.no/project/import-links.
+Gitgap can be used on other airgapped servers, or syncing repos using sneaker-net. To do so, replace the code in git-export with whatever copy/move command you need. 
 ### Outside airgapped server
 1. Add the gitgap repo to your project:
+
+```bash
+bash <(curl -s https://raw.githubusercontent.com/kasbohm/gitgap/master/setup.sh)
+```
+Alterantively do manual clone:  
 ```bash
 git clone --depth=1 --branch=main https://github.com/kasbohm/gitgap.git && rm -rf gitgap/.git && sh gitgap/setup.sh
-```
-When not private, use setup script directly:
-```bash
-bash <($curl -s https://github.com/kasbohm/gitgap/somethingsomething/setup.sh)
 ```
 2. Enter details in config.env (see config.env.example)
 
