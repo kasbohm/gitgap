@@ -1,0 +1,24 @@
+#!/bin/bash
+if [[ $(hostname) =~ $AIRGAP_HOSTREGEX ]]; then LOC="TSD"; else LOC="WORLD"; fi
+
+# Create a bundle of the git repository, containing all branches
+# and tags, and store it in the export directory.
+mkdir -p gitgap/bundles/
+
+REPO=$(basename `git rev-parse --show-toplevel`)
+git bundle create gitgap/bundles/${REPO}.bundle --all
+
+# Create a tag for the latest commit in any branch.
+git tag -f latest -m "Bundle created on ${LOC} $(date)" $(git for-each-ref \
+--sort=-committerdate refs/heads/ --format='%(refname:short)' | head -n 1)
+
+# export bundle depending on condition of $loc variable
+if [[ $LOC == "TSD" ]]; then
+    echo "Exporting bundle to the world"
+    mv gitgap/bundles/${REPO}.bundle ${TSD_EXPORTDIR}/${REPO}.bundle
+else
+    echo "Exporting bundle to TSD"
+    # Push bundles/${REPO}.bundle through api/data.tsd.usit.no to tsd
+    # You can replace tsd_adapter.sh with a scp command or similar if using a different airgapped service.
+    cd gitgap/bundles/ && ../tsd_adapter.sh ${REPO}.bundle && rm ${REPO}.bundle
+fi

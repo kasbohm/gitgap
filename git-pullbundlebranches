@@ -1,0 +1,30 @@
+git pull --tags $1; git fetch $1; git bundle verify $1 | grep ' refs/heads/' | while read line; do \
+    commit=`echo $line | cut -d' ' -f1`; branch=`echo $line | sed 's_[^\\ ]*\\ refs/heads/__'`; \
+    if git show-ref -q --heads $branch; then \
+      old_commit=`git rev-parse $branch`; \
+      if [ \"$old_commit\" = \"$commit\" ]; then \
+        echo 'Skipping' $branch 'which is up-to-date at' $old_commit; \
+      elif git merge-base --is-ancestor $branch $commit; then \
+        current_branch=`git rev-parse --abbrev-ref HEAD`; \
+
+        if [ \"$current_branch\" = \"$branch\" ]; then \
+          git reset --hard $commit; \
+        else \
+          git branch -Dq $branch; git branch $branch $commit; \
+        fi;
+
+
+        echo 'Updated' $branch 'from' $old_commit 'to' $commit; \
+      elif git merge-base --is-ancestor $commit $branch; then \
+        echo 'Skipping' $branch 'which is ahead of bundle version ('$commit')'; \
+      else \
+        echo 'Error:' $branch 'already exists and diverges from upstream found in bundle'; \
+        echo 'You could switch to the bundle version as follows, but you might lose work.'; \
+        echo 'git checkout -B' $branch $commit; \
+      fi; \
+    else \
+      git branch $branch $commit; \
+      echo 'Created' $branch 'pointing at' $commit; \
+    fi;
+done
+# Thanks Tama McGlinn https://stackoverflow.com/a/62833994

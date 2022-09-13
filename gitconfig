@@ -1,0 +1,4 @@
+[alias]
+    export = !bash -c 'source gitgap/config.env && gitgap/git-export "$@"' -
+    import = !bash -c 'source gitgap/config.env && gitgap/git-import "$@"' -
+    pullbundlebranches = !bash -c 'gitgap/git-pullbundlebranches "$@"' -

@@ -1,0 +1,18 @@
+#!/bin/bash
+echo "EXPORTING"
+
+if [[ $(hostname) =~ $AIRGAP_HOSTREGEX ]]; then
+    LOC="TSD";
+    IMPORTDIR=$TSD_IMPORTDIR
+else
+    LOC="WORLD";
+    IMPORTDIR=$WORLD_IMPORTDIR
+fi
+
+if [[ $(hostname) =~ $AIRGAP_HOSTREGEX ]]; then LOC="TSD"; else LOC="WORLD"; fi
+
+REPO=$(basename `git rev-parse --show-toplevel`)
+
+# Import bundle depending on condition of $LOC variable
+echo "IMPORTING GIT BUNDLE FROM ${LOC}"
+git pullbundlebranches ${IMPORTDIR}/${REPO}.bundle
